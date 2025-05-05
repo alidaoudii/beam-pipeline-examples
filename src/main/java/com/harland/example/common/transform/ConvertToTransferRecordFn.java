@@ -2,6 +2,7 @@ package com.harland.example.common.transform;
 
 import com.harland.example.common.model.TransferRecord;
 import org.apache.beam.sdk.transforms.DoFn;
+import org.apache.beam.sdk.transforms.DoFn.ProcessElement;
 
 public class ConvertToTransferRecordFn extends DoFn<String, TransferRecord> {
 
@@ -31,7 +32,7 @@ public class ConvertToTransferRecordFn extends DoFn<String, TransferRecord> {
       // montant invalide => on skip
       return;
     }
-   c.output(new TransferRecord(user, "", amount));
-
+    // on fournit un ID vide pour le deuxième champ afin d’appeler le constructeur à trois arguments
+    c.output(new TransferRecord(user, "", amount));
   }
 }
