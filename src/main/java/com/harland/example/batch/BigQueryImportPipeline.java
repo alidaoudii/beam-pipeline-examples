@@ -1,7 +1,6 @@
 package com.harland.example.batch;
 
 import com.harland.example.common.model.TransferRecord;
-import com.harland.example.common.options.BigQueryImportOptions;
 import com.harland.example.common.transform.ConvertToTransferRecordFn;
 import com.harland.example.common.utils.MathUtils;
 import org.apache.beam.sdk.Pipeline;
@@ -16,42 +15,36 @@ import org.apache.beam.sdk.values.TypeDescriptors;
 public class BigQueryImportPipeline {
 
     public static void main(String[] args) {
-        // Parse custom options if any (e.g., for runner configuration)
-        BigQueryImportOptions options = PipelineOptionsFactory
+        // Utilisation de notre interface d'options locales
+        LocalOptions options = PipelineOptionsFactory
             .fromArgs(args)
             .withValidation()
-            .as(BigQueryImportOptions.class);
+            .as(LocalOptions.class);
 
         Pipeline pipeline = Pipeline.create(options);
 
         pipeline
             // Lire le fichier CSV local
-            .apply("ReadFromLocal", TextIO.read().from("ali/accidents_2005_2020.csv"))
-            // Convertir chaque ligne CSV en TransferRecord
-            .apply("ConvertToTransferRecord", ParDo.of(new ConvertToTransferRecordFn()))
-            // Créer des paires clef/valeur (user, amount)
-            .apply(
-                "CreateKVPairs",
+            .apply("ReadCSV", TextIO.read().from(options.getInput()))
+            // Convertir en TransferRecord
+            .apply("ToRecord", ParDo.of(new ConvertToTransferRecordFn()))
+            // Créer KV<user, amount>
+            .apply("ToKV",
                 MapElements.into(
-                    TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.doubles())
-                ).via((TransferRecord record) -> KV.of(record.getUser(), record.getAmount()))
-            )
-            // Agréger les montants par utilisateur
-            .apply("SumAmountsPerUser", Sum.doublesPerKey())
-            // Formater les résultats en CSV (user,amount)
-            .apply(
-                "FormatResults",
+                    TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.doubles()))
+                .via(record -> KV.of(record.getUser(), record.getAmount())))
+            // Somme des montants par utilisateur
+            .apply("SumAmounts", Sum.doublesPerKey())
+            // Formatter en lignes CSV
+            .apply("FormatCSV",
                 MapElements.into(TypeDescriptors.strings())
-                    .via(record -> record.getKey() + "," + MathUtils.roundToTwoDecimals(record.getValue()))
-            )
-            // Écrire le résultat dans un fichier local sans sharding (un seul fichier)
-            .apply(
-                "WriteToLocal",
+                .via(kv -> kv.getKey() + "," + MathUtils.roundToTwoDecimals(kv.getValue())))
+            // Écriture dans un unique fichier local
+            .apply("WriteCSV",
                 TextIO.write()
-                    .to("output/accidents_result")
-                    .withSuffix(".csv")
-                    .withoutSharding()
-            );
+                      .to(options.getOutput())
+                      .withSuffix(".csv")
+                      .withoutSharding());
 
         pipeline.run().waitUntilFinish();
     }
