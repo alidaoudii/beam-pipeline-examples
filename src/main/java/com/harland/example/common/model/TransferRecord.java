@@ -8,6 +8,8 @@ public class TransferRecord implements Serializable {
     private String user;
     private String transferTo;
     private Double amount;
+    public TransferRecord() {
+}
 
     public TransferRecord(String user, String transferTo, Double amount) {
         this.user = user;
