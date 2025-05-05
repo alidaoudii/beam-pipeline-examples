@@ -20,13 +20,25 @@ public class TransferRecord implements Serializable {
     public String getUser() {
         return user;
     }
-
+    public void setUser(String user) {
+        this.user = user;
+    }
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
     public String getTransferTo() {
         return transferTo;
     }
 
     public Double getAmount() {
         return amount;
+    }
+        }
+    public void setAmount(Double amount) {
+        this.amount = amount;
     }
     @Override
 public boolean equals(Object o) {
