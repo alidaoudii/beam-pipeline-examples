@@ -63,18 +63,14 @@ public class BigQueryImportPipeline {
         .apply("SumAmountsPerUser", Sum.doublesPerKey())
 
         // Write the result to BigQuery.
+       .apply(
+      "FormatAsCSV",
+      MapElements.into(TypeDescriptors.strings())
+          .via((KV<String, Double> record) ->
+              record.getKey() + "," + MathUtils.roundToTwoDecimals(record.getValue())))
+  
         .apply(
-            "WriteToBigQuery",
-            BigQueryIO.<KV<String, Double>>write()
-                .to(options.getBqTableName())
-                .withSchema(schema.getTableSchema())
-                .withFormatFunction(
-                    (KV<String, Double> record) ->
-                        new TableRow()
-                            .set(bqColUser, record.getKey())
-                            .set(bqColAmount, MathUtils.roundToTwoDecimals(record.getValue())))
-                .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
-                .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND));
-    p.run();
-  }
-}
+            "WriteToLocal",
+            TextIO.write().to("output/results").withSuffix(".csv").withoutSharding());
+      
+      }
