@@ -45,8 +45,9 @@ public class BigQueryImportPipeline {
     String bqColUser = schema.getColumnName(0);
     String bqColAmount = schema.getColumnName(1);
 
-    // Read all text files from either a Google Cloud Storage or AWS S3 bucket.
-    p.apply("ReadFromStorage", TextIO.read().from(options.getBucketUrl() + "/*"))
+    // Read local directory 
+    p.apply("ReadFromLocal", TextIO.read().from("data/accidents_2005_2020.csv"))
+
 
         // Convert our CSV rows into a TransferRecord object.
         .apply("ConvertToTransferRecord", ParDo.of(new ConvertToTransferRecordFn()))
