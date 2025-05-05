@@ -1,3 +1,4 @@
+<!-- File: pom.xml -->
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -34,6 +35,13 @@
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
+          <excludes>
+            <!-- Exclure les anciens pipelines GCP/AWS/Streaming -->
+            <exclude>com/harland/example/streaming/**</exclude>
+            <exclude>com/harland/example/common/options/BigQueryImportOptions.java</exclude>
+            <exclude>com/harland/example/common/options/AwsOptionsParser.java</exclude>
+            <exclude>com/harland/example/common/bigquery/**</exclude>
+          </excludes>
         </configuration>
       </plugin>
 
@@ -47,13 +55,6 @@
           <threadCount>4</threadCount>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
         </configuration>
-      </plugin>
-
-      <!-- Jar standard -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.0.2</version>
       </plugin>
 
       <!-- Fat-jar exécutable avec Manifest mainClass -->
@@ -78,19 +79,6 @@
         </executions>
       </plugin>
     </plugins>
-
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>${exec-maven-plugin.version}</version>
-          <configuration>
-            <cleanupDaemonThreads>false</cleanupDaemonThreads>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
 
   <dependencies>
@@ -109,7 +97,7 @@
       <scope>runtime</scope>
     </dependency>
 
-    <!-- Gson pour utilitaires JSON (facultatif) -->
+    <!-- Gson (facultatif) -->
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
