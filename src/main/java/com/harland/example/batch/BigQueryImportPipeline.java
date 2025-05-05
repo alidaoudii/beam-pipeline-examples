@@ -21,6 +21,12 @@ public class BigQueryImportPipeline {
             .as(LocalOptions.class);
 
         Pipeline pipeline = Pipeline.create(options);
+        // tout de suite après Pipeline.create(options);
+        pipeline.getCoderRegistry()
+            .registerCoderForClass(
+            TransferRecord.class,
+            AvroCoder.of(TransferRecord.class));
+
 
         pipeline
             .apply("ReadCSV", TextIO.read().from(options.getInput()))
