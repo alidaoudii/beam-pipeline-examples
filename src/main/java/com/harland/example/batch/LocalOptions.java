@@ -5,9 +5,6 @@ import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.Validation;
 
-/**
- * Interface de configuration pour l'exécution locale du pipeline.
- */
 public interface LocalOptions extends PipelineOptions {
 
     @Description("Path of the input CSV file, e.g. ali/accidents_2005_2020.csv")
