@@ -31,6 +31,7 @@ public class ConvertToTransferRecordFn extends DoFn<String, TransferRecord> {
       // montant invalide => on skip
       return;
     }
-    c.output(new TransferRecord(user, amount));
+   c.output(new TransferRecord(user, "", amount));
+
   }
 }
