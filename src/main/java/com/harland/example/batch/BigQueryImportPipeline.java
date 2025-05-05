@@ -1,4 +1,3 @@
-// File: src/main/java/com/harland/example/batch/BigQueryImportPipeline.java
 package com.harland.example.batch;
 
 import com.harland.example.common.model.TransferRecord;
