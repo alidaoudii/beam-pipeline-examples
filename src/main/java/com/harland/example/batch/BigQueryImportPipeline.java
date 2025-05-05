@@ -13,10 +13,6 @@ import org.apache.beam.sdk.transforms.Sum;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.TypeDescriptors;
 
-/**
- * Pipeline Apache Beam pour lire un CSV local, agréger les montants
- * et écrire le résultat dans un fichier local unique.
- */
 public class BigQueryImportPipeline {
 
     public static void main(String[] args) {
