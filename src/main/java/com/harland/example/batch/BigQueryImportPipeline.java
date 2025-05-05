@@ -13,7 +13,7 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.TypeDescriptors;
 import org.apache.beam.sdk.coders.AvroCoder;
 
-
+import org.apache.beam.sdk.transforms.Filter;
 
 public class BigQueryImportPipeline {
 
@@ -33,6 +33,10 @@ public class BigQueryImportPipeline {
 
         pipeline
             .apply("ReadCSV", TextIO.read().from(options.getInput()))
+            .apply("FilterHeader", Filter.by((String line) ->
+                     line != null
+                     && !line.trim().isEmpty()
+                     && !line.startsWith("user,")))  // même condition que ci-dessus
             .apply("ToRecord", ParDo.of(new ConvertToTransferRecordFn()))
             .apply("ToKV", MapElements.into(
                     TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.doubles()))
@@ -44,6 +48,7 @@ public class BigQueryImportPipeline {
                 .to(options.getOutput())
                 .withSuffix(".csv")
                 .withoutSharding());
+        
 
         pipeline.run().waitUntilFinish();
     }
