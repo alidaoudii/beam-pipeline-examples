@@ -11,6 +11,9 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.Sum;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.TypeDescriptors;
+import org.apache.beam.sdk.coders.AvroCoder;
+
+
 
 public class BigQueryImportPipeline {
 
