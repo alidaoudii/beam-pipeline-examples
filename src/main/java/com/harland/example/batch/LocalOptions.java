@@ -1,4 +1,3 @@
-// File: src/main/java/com/harland/example/batch/LocalOptions.java
 package com.harland.example.batch;
 
 import org.apache.beam.sdk.options.Description;
