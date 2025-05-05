@@ -74,3 +74,4 @@ public class BigQueryImportPipeline {
             TextIO.write().to("output/results").withSuffix(".csv").withoutSharding());
       
       }
+}
