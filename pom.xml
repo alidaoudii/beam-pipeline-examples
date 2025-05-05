@@ -94,7 +94,7 @@
   </build>
 
   <dependencies>
-    <!-- Core Apache Beam SDK -->
+    <!-- Core Apache Beam SDK (inclut TextIO) -->
     <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-sdks-java-core</artifactId>
@@ -109,14 +109,7 @@
       <scope>runtime</scope>
     </dependency>
 
-    <!-- IO pour fichiers texte -->
-    <dependency>
-      <groupId>org.apache.beam</groupId>
-      <artifactId>beam-sdks-java-io-file-based</artifactId>
-      <version>${beam.version}</version>
-    </dependency>
-
-    <!-- Utilitaires JSON (si nécessaire) -->
+    <!-- Gson pour utilitaires JSON (facultatif) -->
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
@@ -130,7 +123,7 @@
       <version>${guava.version}</version>
     </dependency>
 
-    <!-- SLF4J -->
+    <!-- SLF4J pour logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
