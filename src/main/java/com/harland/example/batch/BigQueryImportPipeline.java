@@ -12,10 +12,14 @@ import org.apache.beam.sdk.transforms.Sum;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.TypeDescriptors;
 
+/**
+ * Pipeline Apache Beam pour lire un CSV local, agréger les montants
+ * et écrire le résultat dans un fichier local unique.
+ */
 public class BigQueryImportPipeline {
 
     public static void main(String[] args) {
-        // Utilisation de notre interface d'options locales
+        // Parse des arguments en utilisant LocalOptions
         LocalOptions options = PipelineOptionsFactory
             .fromArgs(args)
             .withValidation()
@@ -24,28 +28,31 @@ public class BigQueryImportPipeline {
         Pipeline pipeline = Pipeline.create(options);
 
         pipeline
-            // Lire le fichier CSV local
+            // Lecture du fichier CSV local
             .apply("ReadCSV", TextIO.read().from(options.getInput()))
-            // Convertir en TransferRecord
-            .apply("ToRecord", ParDo.of(new ConvertToTransferRecordFn()))
-            // Créer KV<user, amount>
-            .apply("ToKV",
-                MapElements.into(
-                    TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.doubles()))
-                .via(record -> KV.of(record.getUser(), record.getAmount())))
-            // Somme des montants par utilisateur
-            .apply("SumAmounts", Sum.doublesPerKey())
-            // Formatter en lignes CSV
-            .apply("FormatCSV",
-                MapElements.into(TypeDescriptors.strings())
-                .via(kv -> kv.getKey() + "," + MathUtils.roundToTwoDecimals(kv.getValue())))
-            // Écriture dans un unique fichier local
-            .apply("WriteCSV",
-                TextIO.write()
-                      .to(options.getOutput())
-                      .withSuffix(".csv")
-                      .withoutSharding());
 
+            // Conversion de chaque ligne en TransferRecord
+            .apply("ToRecord", ParDo.of(new ConvertToTransferRecordFn()))
+
+            // Création de paires KV<user, amount>
+            .apply("ToKV", MapElements.into(
+                    TypeDescriptors.kvs(TypeDescriptors.strings(), TypeDescriptors.doubles()))
+                .via((TransferRecord record) -> KV.of(record.getUser(), record.getAmount())))
+
+            // Agrégation des montants par utilisateur
+            .apply("SumAmounts", Sum.doublesPerKey())
+
+            // Formatage des résultats sous forme 'user,amount'
+            .apply("FormatCSV", MapElements.into(TypeDescriptors.strings())
+                .via(kv -> kv.getKey() + "," + MathUtils.roundToTwoDecimals(kv.getValue())))
+
+            // Écriture en un seul fichier local sans sharding
+            .apply("WriteCSV", TextIO.write()
+                .to(options.getOutput())
+                .withSuffix(".csv")
+                .withoutSharding());
+
+        // Lancement et attente de la fin du pipeline
         pipeline.run().waitUntilFinish();
     }
 }
